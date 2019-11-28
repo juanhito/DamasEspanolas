@@ -7,7 +7,8 @@ using namespace std;
 #define FICHAS_NEGRAS 3
 #define FILAS 8
 #define COLUMNAS 8
-
+#define REINAS_BLANCAS 4
+#define REINAS_NEGRAS 5
 int intro();// Funcion que pinta y colorea a la Universidad Europea
 void intercambio(int matrix[FILAS][COLUMNAS], int filaOrigen, int colOrigen, int filaDestino, int colDestino);//Intercambia fichas
 int turno(int matrix[][COLUMNAS], int jugador,int filaOrigen,int colOrigen,int filaDestino,int colDestino);//Gestiona los turno y movimientos
@@ -73,12 +74,13 @@ int turno(int matrix[FILAS][COLUMNAS], int jugador,int filaOrigen,int colOrigen,
         cout<<"\n No ves que el tablero no tiene esa posicion ? Estas fuera del tablero\n";
         return -1;
     }
+
     if((filaDestino < 0 && FILAS <= filaDestino)&&(colDestino < 0 && COLUMNAS<= colDestino)){// Comprueba filas y col esten dentro del tablero
         cout<<"\n No ves que el tablero no tiene esa posicion ? Estas fuera del tablero\n";
         return -1;
     }
         
-    if(jugador == FICHAS_BLANCAS){//Comprueba que muevas solo donde haya fichas blancas
+    if(jugador == FICHAS_BLANCAS||jugador==REINAS_BLANCAS){//Comprueba que muevas solo donde haya fichas blancas
         if(matrix[filaOrigen][colOrigen] != FICHAS_BLANCAS){
             cout<<"\n <<< Eres CIEGO ? , No tienes fichas ** BLANCAS **  en esa posicion >>>\n";
             return -1;
@@ -100,6 +102,8 @@ int turno(int matrix[FILAS][COLUMNAS], int jugador,int filaOrigen,int colOrigen,
             cout<<"\nNo te da o que ??? No puedes mover hacia atras o quedarte en el mismo lugar\n";
             return -1;
         }
+
+
     } else {//Comprueba que el movimiento de las NEGRAS no sea hacia atras
         if(filaOrigen <= filaDestino){
             cout<<"\nNo te da o que ??? No puedes mover hacia atras o quedarte en el mismo lugar\n";
@@ -112,6 +116,19 @@ int turno(int matrix[FILAS][COLUMNAS], int jugador,int filaOrigen,int colOrigen,
         if(colOrigen - colDestino == 1 || colOrigen - colDestino == -1){
             intercambio(matrix,filaOrigen,colOrigen,filaDestino,colDestino);
             return 0;
+        }
+    } else{
+        if(matrix[filaOrigen][colOrigen]==REINAS_BLANCAS) {
+            if (filaOrigen - filaDestino == colOrigen - colDestino||filaOrigen-filaDestino==colDestino-colDestino) {
+                intercambio(matrix, filaOrigen, colOrigen, filaDestino, colDestino);
+            }
+        return 0;
+        }
+        else if (matrix[filaOrigen][colOrigen]==REINAS_NEGRAS){
+            if (filaOrigen - filaDestino == colOrigen - colDestino||filaOrigen-filaDestino==colDestino-colOrigen) {
+                intercambio(matrix, filaOrigen, colOrigen, filaDestino, colDestino);
+                return 0;
+            }
         }
     }
     
@@ -142,7 +159,17 @@ int turno(int matrix[FILAS][COLUMNAS], int jugador,int filaOrigen,int colOrigen,
             intercambio(matrix,filaOrigen,colOrigen,filaDestino,colDestino);
             return 0;
         }
+        if(jugador==FICHAS_BLANCAS){
+            if(filaDestino==8){
+                matrix[filaDestino][colDestino]=REINAS_BLANCAS;            }
+        }
+        if(jugador==FICHAS_NEGRAS){
+            if(filaDestino==0){
+                matrix[filaDestino][colDestino]=REINAS_NEGRAS;
+            }
+        }
     }
+
     cout<<"Las fichas solo se pueden mover DIAGONALMENTE\n";
     return -1;
     
@@ -195,9 +222,13 @@ char simbolos(int i)//Cambia letras por numeros
         case 1:
             return 'v';//espacio vacio  
         case 2:
-            return 'B';//blancas
+            return 'b';//blancas
         case 3:
-            return 'N';//negras     
+            return 'n';//negras
+        case 4:
+            return 'B';//Reina Blanca
+        case 5:
+            return 'N';//Reina Negra
     }
     return ('?');
 }
