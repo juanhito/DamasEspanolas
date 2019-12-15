@@ -26,7 +26,7 @@ int intro(){
             cout<<"\t\t_____________________________________________________________________"<<endl<<endl;
             cout<<"\t\tProf.:Christian Sucuzhanay.                  Alumno : XXXXXXXXXXX"<<endl<<endl<<endl;
             cout<<"\t\t              << JUEGO DE LAS DAMAS ESPANOLAS >>"<<endl<<endl;
-            cout<<"\t\t\t    ** SelepintarColione una opción del menu [ 0-9] **"<<endl<<endl;
+            cout<<"\t\t\t    ** Seleccionar una opción del menu [ 0-9] **"<<endl<<endl;
             cout<<"\t\t\t\t  [ 1 ] Ver reglas del juego "<<endl;
             cout<<"\t\t\t\t  [ 2 ] Jugar"<<endl;
             cout<<"\t\t\t\t  [ 0 ] SALIR"<<endl<<endl;
@@ -81,12 +81,12 @@ int turno(int matrix[FILAS][COLUMNAS], int jugador,int filaOrigen,int colOrigen,
     }
         
     if(jugador == FICHAS_BLANCAS||jugador==REINAS_BLANCAS){//Comprueba que muevas solo donde haya fichas blancas
-        if(matrix[filaOrigen][colOrigen] != FICHAS_BLANCAS){
+        if(matrix[filaOrigen][colOrigen] != FICHAS_BLANCAS &&matrix[filaOrigen][colOrigen] != REINAS_BLANCAS){
             cout<<"\n <<< Eres CIEGO ? , No tienes fichas ** BLANCAS **  en esa posicion >>>\n";
             return -1;
         }
     } else { //Comprueba que no muevas fichas negras
-        if(matrix[filaOrigen][colOrigen] != FICHAS_NEGRAS){
+        if(matrix[filaOrigen][colOrigen] != FICHAS_NEGRAS && matrix[filaOrigen][colOrigen]!=REINAS_NEGRAS){
             cout<<"\n <<< Eres CIEGO ? , No tienes fichas ** NEGRAS **  en esa posicion >>>\n";
             return -1;
         }
@@ -98,14 +98,14 @@ int turno(int matrix[FILAS][COLUMNAS], int jugador,int filaOrigen,int colOrigen,
     }
     
     if(jugador == FICHAS_BLANCAS){//Comprueba que el movimiento de las BLANCAS no sea hacia atras
-        if(filaOrigen >= filaDestino){
+        if(filaOrigen >= filaDestino&&matrix[filaOrigen][colOrigen]!=REINAS_BLANCAS){
             cout<<"\nNo te da o que ??? No puedes mover hacia atras o quedarte en el mismo lugar\n";
             return -1;
         }
 
 
     } else {//Comprueba que el movimiento de las NEGRAS no sea hacia atras
-        if(filaOrigen <= filaDestino){
+        if(filaOrigen <= filaDestino&&matrix[filaOrigen][colOrigen]!=REINAS_NEGRAS){
             cout<<"\nNo te da o que ??? No puedes mover hacia atras o quedarte en el mismo lugar\n";
             return -1;
         }
@@ -115,23 +115,173 @@ int turno(int matrix[FILAS][COLUMNAS], int jugador,int filaOrigen,int colOrigen,
     if(filaOrigen - filaDestino == -1 || filaOrigen - filaDestino == 1){
         if(colOrigen - colDestino == 1 || colOrigen - colDestino == -1){
             intercambio(matrix,filaOrigen,colOrigen,filaDestino,colDestino);
+            if(jugador==FICHAS_BLANCAS){
+                if(filaDestino==7){
+                    matrix[filaDestino][colDestino]=REINAS_BLANCAS;//cuando llega a la ultima fila se cambia a reina
+                }
+            }
+            if(jugador==FICHAS_NEGRAS){
+                if(filaDestino==0){
+                    matrix[filaDestino][colDestino]=REINAS_NEGRAS;//cuando llega a la ultima fila se cambia a reina
+                }
+            }
             return 0;
         }
+
+
     } else{
         if(matrix[filaOrigen][colOrigen]==REINAS_BLANCAS) {
-            if (filaOrigen - filaDestino == colOrigen - colDestino||filaOrigen-filaDestino==colDestino-colDestino) {
-                intercambio(matrix, filaOrigen, colOrigen, filaDestino, colDestino);
+
+
+            if (filaOrigen - filaDestino == colOrigen - colDestino || filaOrigen-filaDestino==colDestino-colOrigen) {//comprueba que se mueve en diagonal
+                if(filaOrigen-filaDestino>0&&colOrigen-colDestino>0){//cada if mira en que direccion se mueve y si hay fichas en esa diagonal en cuanto encuentra una para
+                    for(int i=0;i<8;i++){
+                        if(matrix[filaOrigen-i][colOrigen-i]==FICHAS_NEGRAS
+                        ||matrix[filaOrigen-i][colOrigen-i]==REINAS_NEGRAS){//comprueba si se mueve arriba a la izquierda si hay fichas en medio y si las hay se las come
+                            matrix[filaOrigen-i][colOrigen-i]=1;
+                            if(matrix[filaOrigen-i-1][colOrigen-i-1]!=ESPACIO_VACIO){//comprueba que no haya 2 fichas en medio
+                                cout<<"Hay otra ficha en medio";
+                                return -1;
+                            }
+                            else{
+                                intercambio(matrix, filaOrigen, colOrigen, filaDestino, colDestino);
+
+                            }
+                            i=8;
+                        }
+                    }
+                }
+                else if(filaOrigen-filaDestino>0&&colOrigen-colDestino<0){
+                    for(int i=0;i<8;i++){
+                        if(matrix[filaOrigen-i][colOrigen+i]==FICHAS_NEGRAS
+                        ||matrix[filaOrigen-i][colOrigen+i]==REINAS_NEGRAS){//comprueba si en esa direccion hay fichas para ver si puede  comer
+                            matrix[filaOrigen-i][colOrigen+i]=1;
+                            if(matrix[filaOrigen-i-1][colOrigen+i+1]!=ESPACIO_VACIO){//comprueba quee no haya una ficha detras
+                                cout<<"Hay otra ficha en medio";
+                                return -1;
+                            }
+                            else{
+                                intercambio(matrix, filaOrigen, colOrigen, filaDestino, colDestino);
+
+                            }
+                            i=8;
+                        }
+                    }
+                }
+                else if(filaOrigen-filaDestino<0&&colOrigen-colDestino>0){
+                    for (int i = 0; i <8; i++) {
+                        if (matrix[filaOrigen + i][colOrigen - i] == FICHAS_NEGRAS ||
+                            matrix[filaOrigen + i][colOrigen - i] == REINAS_NEGRAS) {//comprueba si en esta direccion hay fichas y si las hay se las come
+                            matrix[filaOrigen + i][colOrigen - i] = 1;
+                        }
+                        if(matrix[filaOrigen+i+1][colOrigen-i-1]!=ESPACIO_VACIO){//comprueba que no haya 2 fichas
+                            cout<<"Hay otra ficha en medio";
+                            return -1;
+                        }
+                        else{
+                            intercambio(matrix, filaOrigen, colOrigen, filaDestino, colDestino);
+
+                        }
+                        i=8;
+
+                    }
+
+                }
+                else if(filaOrigen-filaDestino<0&&colOrigen-colDestino<0) {
+                    for (int i = 0; i < 8; i++) {
+                        if (matrix[filaOrigen + i][colOrigen + i] == FICHAS_NEGRAS ||
+                            matrix[filaOrigen + i][colOrigen + i] == REINAS_NEGRAS) {
+                            matrix[filaOrigen + i][colOrigen + i] = 1;
+
+                            if (matrix[filaOrigen + i + 1][colOrigen + i + 1]!=ESPACIO_VACIO) {
+                                cout << "Hay otra ficha en medio";
+                                return -1;
+                            } else {
+                                intercambio(matrix, filaOrigen, colOrigen, filaDestino, colDestino);
+
+                            }
+                            i = 8;
+                        }
+                    }
+                    intercambio(matrix, filaOrigen, colOrigen, filaDestino, colDestino);
+                }
+
+
+
             }
-        return 0;
         }
-        else if (matrix[filaOrigen][colOrigen]==REINAS_NEGRAS){
-            if (filaOrigen - filaDestino == colOrigen - colDestino||filaOrigen-filaDestino==colDestino-colOrigen) {
-                intercambio(matrix, filaOrigen, colOrigen, filaDestino, colDestino);
+        else if (matrix[filaOrigen][colOrigen]==REINAS_NEGRAS){//cada if comprueba si hay fichas contrarias en una direccion
+                if (filaOrigen - filaDestino == colOrigen - colDestino || filaOrigen-filaDestino==colDestino-colOrigen) {//comprueba que se mueva en diagonal
+                    if(filaOrigen-filaDestino>0&&colOrigen-colDestino>0){
+                        for(int i=0;i<8;i++){
+                            if(matrix[filaOrigen-i][colOrigen-i]==FICHAS_BLANCAS
+                               ||matrix[filaOrigen-i][colOrigen-i]==REINAS_BLANCAS){
+                                matrix[filaOrigen-i][colOrigen-i]=1;
+                                if(matrix[filaOrigen-i-1][colOrigen-i-1]!=ESPACIO_VACIO){
+                                    cout<<"Hay otra ficha en medio";
+                                    return -1;
+                                }
+                                else{
+                                    intercambio(matrix, filaOrigen, colOrigen, filaDestino, colDestino);
+                                }
+                                i=8;
+                            }
+                        }
+                    }
+                    else if(filaOrigen-filaDestino>0&&colOrigen-colDestino<0){
+                        for(int i=0;i<8;i++){
+                            if(matrix[filaOrigen-i][colOrigen+i]==FICHAS_BLANCAS
+                               ||matrix[filaOrigen-i][colOrigen+i]==REINAS_BLANCAS){
+                                matrix[filaOrigen-i][colOrigen+i]=1;
+                                if(matrix[filaOrigen-i-1][colOrigen+i+1]!=ESPACIO_VACIO){
+                                    cout<<"Hay otra ficha en medio";
+                                    return -1;
+                                }
+                                else{
+                                    intercambio(matrix, filaOrigen, colOrigen, filaDestino, colDestino);
+
+                                }
+                                i=8;
+                            }
+                        }
+                    }
+                    else if(filaOrigen-filaDestino<0&&colOrigen-colDestino>0){
+                        for (int i = 0; i <8; i++) {
+                            if (matrix[filaOrigen + i][colOrigen - i] == FICHAS_BLANCAS ||
+                                matrix[filaOrigen + i][colOrigen - i] == REINAS_BLANCAS) {
+                                matrix[filaOrigen + i][colOrigen - i] = 1;
+                            }
+                            if(matrix[filaOrigen+i+1][colOrigen-i-1]!=ESPACIO_VACIO){
+                                cout<<"Hay otra ficha en medio";
+                                return -1;
+                            }
+                            else{
+                                intercambio(matrix, filaOrigen, colOrigen, filaDestino, colDestino);
+                            }
+                            i=8;
+                        }
+                    }
+                    else if(filaOrigen-filaDestino<0&&colOrigen-colDestino<0) {
+                        for (int i = 0; i < 8; i++) {
+                            if (matrix[filaOrigen + i][colOrigen + i] == FICHAS_BLANCAS ||
+                                matrix[filaOrigen + i][colOrigen + i] == REINAS_BLANCAS) {
+                                matrix[filaOrigen + i][colOrigen + i] = 1;
+
+                                if (matrix[filaOrigen + i + 1][colOrigen + i + 1] !=ESPACIO_VACIO) {
+                                    cout << "Hay otra ficha en medio";
+                                    return -1;
+                                } else {
+                                    intercambio(matrix, filaOrigen, colOrigen, filaDestino, colDestino);
+                                }
+                                i = 8;
+                            }
+                        }
+                        intercambio(matrix, filaOrigen, colOrigen, filaDestino, colDestino);
+                    }
+                }
                 return 0;
-            }
         }
     }
-    
     //Comprueba si ha comido ficha de adversario
     if(filaOrigen - filaDestino == -2 || filaOrigen - filaDestino == 2){
         if(colOrigen - colDestino == -2 || colOrigen - colDestino == 2){
@@ -145,7 +295,8 @@ int turno(int matrix[FILAS][COLUMNAS], int jugador,int filaOrigen,int colOrigen,
                 comerFichaNegras = colOrigen + 1;
             } else { // Movimiento hacia arriba
                 comerFichaNegras = colOrigen - 1;
-            }       
+            }
+
             if(jugador==FICHAS_BLANCAS && matrix[comerFichaBlancas][comerFichaNegras]!=FICHAS_NEGRAS)
             {
                 cout<<"\nSolo puedes saltar si COMES FICHA"<<comerFichaBlancas<<comerFichaNegras;
@@ -155,27 +306,25 @@ int turno(int matrix[FILAS][COLUMNAS], int jugador,int filaOrigen,int colOrigen,
                 cout<<"\nSolo puedes saltar si COMES FICHA \n";
                 return -1;
             }
+
             matrix[comerFichaBlancas][comerFichaNegras] = 1;
             intercambio(matrix,filaOrigen,colOrigen,filaDestino,colDestino);
+            if(jugador==FICHAS_BLANCAS){
+                if(filaDestino==7){
+                    matrix[filaDestino][colDestino]=REINAS_BLANCAS;//cuando llega a la ultima fila se cambia a reina
+                }
+            }
+            if(jugador==FICHAS_NEGRAS){
+                if(filaDestino==0){
+                    matrix[filaDestino][colDestino]=REINAS_NEGRAS;//cuando llega a la ultima fila se cambia a reina
+                }
+            }
             return 0;
         }
-        if(jugador==FICHAS_BLANCAS){
-            if(filaDestino==8){
-                matrix[filaDestino][colDestino]=REINAS_BLANCAS;            }
-        }
-        if(jugador==FICHAS_NEGRAS){
-            if(filaDestino==0){
-                matrix[filaDestino][colDestino]=REINAS_NEGRAS;
-            }
-        }
     }
-
     cout<<"Las fichas solo se pueden mover DIAGONALMENTE\n";
     return -1;
-    
 }
-
-
 void tablero(int matrix[FILAS][COLUMNAS])//Pinta tablero
 {
     int pintarFilas, pintarCol;
@@ -240,13 +389,13 @@ int main()//Programa principal
     char colOrigen, colDestino;//Para almacenar el valor de las columnas que son a-h
     int matrix[FILAS][COLUMNAS]={//Matrix de fichas
                 {0,2,0,2,0,2,0,2},
-                {2,0,2,0,2,0,2,0}, 
-                {0,2,0,2,0,2,0,2}, 
-                {1,0,1,0,1,0,1,0}, 
+                {2,0,2,0,2,0,2,0},
+                {0,2,0,2,0,2,0,2},
+                {1,0,1,0,1,0,1,0},
                 {0,1,0,1,0,1,0,1}, 
-                {3,0,3,0,3,0,3,0},
+                {3,0,2,0,3,0,3,0},
                 {0,3,0,3,0,3,0,3},
-                {3,0,3,0,3,0,3,0}};//Tablero 0= vacio, 2=Blancas, 3=Negras
+                {1,0,3,0,3,0,3,0}};//Tablero 0=no se puede, 1=vacio, 2=Blancas, 3=Negras
     intro();//Funcion que pinta y colorea Universidad Europea
     system("clear");//Limpia pantalla
     for(;;)
